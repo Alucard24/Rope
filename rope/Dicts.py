@@ -213,11 +213,6 @@ DEFAULT_DATA = {
 'CLIPSwitchInfoText':               'TEXT MASKING:\nUse descriptions to identify objects that will be present in the final swapped image.',
 'CLIPSwitchState':                  False,
 
-'RestoreEyesSwitchInfoText':        'RESTORE EYES: \nRestore eyes from the original face',
-'RestoreEyesSwitchState':        False,
-'RestoreMouthSwitchInfoText':        'RESTORE MOUTH: \nRestore mouth from the original face',
-'RestoreMouthSwitchState':        False,
-
 # Sliders
 'BlendSliderAmount':                5,
 'BlendSliderInc':                   1,  
@@ -367,9 +362,58 @@ DEFAULT_DATA = {
 'KPSYSliderMin':                    -100,
 'MouthParserSliderAmount':          0, 
 'MouthParserSliderInc':             1,      
-'MouthParserSliderInfoText':        'MOUTH MASK AMOUNT:\nAdjust the size of the mask. Negative values only mask the inside of the mouth, including the tongue. Positive values also include lips',
-'MouthParserSliderMax':             50,
-'MouthParserSliderMin':             -50,
+'MouthParserSliderInfoText':        'MOUTH MASK AMOUNT:\nAdjust the size of the mask. Mask the inside of the mouth, including the tongue',
+'MouthParserSliderMax':             30,
+'MouthParserSliderMin':             0,
+
+'NeckParserSliderAmount':          0, 
+'NeckParserSliderInc':             1,      
+'NeckParserSliderInfoText':        'NECK MASK AMOUNT:\nAdjust the size of the mask.',
+'NeckParserSliderMax':             30,
+'NeckParserSliderMin':             0,
+
+'LeftEyeBrowParserSliderAmount':          0, 
+'LeftEyeBrowParserSliderInc':             1,      
+'LeftEyeBrowParserSliderInfoText':        'LEFT EYEBROW MASK AMOUNT:\nAdjust the size of the mask.',
+'LeftEyeBrowParserSliderMax':             30,
+'LeftEyeBrowParserSliderMin':             0,
+
+'RightEyeBrowParserSliderAmount':          0, 
+'RightEyeBrowParserSliderInc':             1,      
+'RightEyeBrowParserSliderInfoText':        'RIGHT EYEBROW MASK AMOUNT:\nAdjust the size of the mask.',
+'RightEyeBrowParserSliderMax':             30,
+'RightEyeBrowParserSliderMin':             0,
+
+'LeftEyeParserSliderAmount':          0, 
+'LeftEyeParserSliderInc':             1,      
+'LeftEyeParserSliderInfoText':        'LEFT EYE MASK AMOUNT:\nAdjust the size of the mask.',
+'LeftEyeParserSliderMax':             30,
+'LeftEyeParserSliderMin':             0,
+
+'RightEyeParserSliderAmount':          0, 
+'RightEyeParserSliderInc':             1,      
+'RightEyeParserSliderInfoText':        'RIGHT EYE MASK AMOUNT:\nAdjust the size of the mask.',
+'RightEyeParserSliderMax':             30,
+'RightEyeParserSliderMin':             0,
+
+'NoseParserSliderAmount':          0, 
+'NoseParserSliderInc':             1,      
+'NoseParserSliderInfoText':        'NOSE MASK AMOUNT:\nAdjust the size of the mask.',
+'NoseParserSliderMax':             30,
+'NoseParserSliderMin':             0,
+
+'UpperLipParserSliderAmount':          0, 
+'UpperLipParserSliderInc':             1,      
+'UpperLipParserSliderInfoText':        'UPPER LIP MASK AMOUNT:\nAdjust the size of the mask.',
+'UpperLipParserSliderMax':             30,
+'UpperLipParserSliderMin':             0,
+
+'LowerLipParserSliderAmount':          0, 
+'LowerLipParserSliderInc':             1,      
+'LowerLipParserSliderInfoText':        'LOWER LIP MASK AMOUNT:\nAdjust the size of the mask.',
+'LowerLipParserSliderMax':             30,
+'LowerLipParserSliderMin':             0,
+
 'OccluderSliderAmount':             0,
 'OccluderSliderInc':                1,
 'OccluderSliderInfoText':           'OCCLUDER AMOUNT:\nGrows or shrinks the occluded region',
@@ -417,43 +461,6 @@ DEFAULT_DATA = {
 'ColorGammaSliderInfoText':               'GAMMA VALUE:\nChanges Gamma.',
 'ColorGammaSliderMax':                    2,
 'ColorGammaSliderMin':                    0,
-
-'RestoreEyesSliderAmount':               50,
-'RestoreEyesSliderInc':                  1,
-'RestoreEyesSliderInfoText':             'EYES BLEND SLIDER :\nIncrease this to show more of the swapped eyes. Decrease it to show more of the original eyes',
-'RestoreEyesSliderMax':                  100,
-'RestoreEyesSliderMin':                  1,
-
-'RestoreEyesSizeSliderAmount':               3,
-'RestoreEyesSizeSliderInc':                  0.5,
-'RestoreEyesSizeSliderInfoText':             'EYES SIZE FACTOR :\nReduce this when swapping faces zoomed out of the frame.',
-'RestoreEyesSizeSliderMax':                  4,
-'RestoreEyesSizeSliderMin':                  2,
-
-'RestoreEyesFeatherSliderAmount':               10,
-'RestoreEyesFeatherSliderInc':                  1,
-'RestoreEyesFeatherSliderInfoText':             'EYES FEATHER BLEND :\nAdjust the blending of eyes border. Increase this to show more of the original eyes. Decrease this to show more of the swapped eyes',
-'RestoreEyesFeatherSliderMax':                  100,
-'RestoreEyesFeatherSliderMin':                  1,
-
-'RestoreMouthSliderAmount':               50,
-'RestoreMouthSliderInc':                  1,
-'RestoreMouthSliderInfoText':             'MOUTH BLEND :\nIncrease this to show more of the swapped Mouth. Decrease it to show more of the original Mouth',
-'RestoreMouthSliderMax':                  100,
-'RestoreMouthSliderMin':                  1,
-
-'RestoreMouthSizeSliderAmount':               25,
-'RestoreMouthSizeSliderInc':                  5,
-'RestoreMouthSizeSliderInfoText':             'MOUTH SIZE :\nIncrease this when swapping faces zoomed out of the frame.',
-'RestoreMouthSizeSliderMax':                  60,
-'RestoreMouthSizeSliderMin':                  5,
-
-'RestoreMouthFeatherSliderAmount':               10,
-'RestoreMouthFeatherSliderInc':                  1,
-'RestoreMouthFeatherSliderInfoText':             'MOUTH FEATHER BLEND :\nAdjust the border of Mouth blending. Increase this to show more of the original Mouth. Decrease this to show more of the swapped Mouth',
-'RestoreMouthFeatherSliderMax':                  100,
-'RestoreMouthFeatherSliderMin':                  1,
-
 
 # Text Selection
 'DetectTypeTextSelInfoText':        'FACE DETECTION MODEL:\nSelect the face detection model. Mostly only subtle differences, but can significant differences when the face is at extreme angles or covered.',

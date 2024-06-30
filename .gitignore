@@ -9,3 +9,4 @@ merged_embeddings.txt
 .vs
 *.sln
 *.pyproj
+tensorrt-engines/

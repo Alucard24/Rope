@@ -18,8 +18,18 @@ import pickle
 class Models():
     def __init__(self):
         self.arcface_dst = np.array( [[38.2946, 51.6963], [73.5318, 51.5014], [56.0252, 71.7366], [41.5493, 92.3655], [70.7299, 92.2041]], dtype=np.float32)
-        self.providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
-
+        # self.providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+        self.providers = [
+            ('TensorrtExecutionProvider', {
+                'trt_engine_cache_enable': True,
+                'trt_engine_cache_path': "tensorrt-engines",
+                'trt_timing_cache_enable': True,
+                'trt_timing_cache_path': "tensorrt-engines",
+                'trt_dump_ep_context_model': True,
+                'trt_ep_context_file_path': "tensorrt-engines",
+            }),
+            ('CUDAExecutionProvider'),
+            ('CPUExecutionProvider')]
         self.retinaface_model = []
         self.yoloface_model = []
         self.scrdf_model = []
