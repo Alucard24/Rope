@@ -11,6 +11,7 @@ from rope.external.clipseg import CLIPDensePredT
 
 resize_delay = 1
 mem_delay = 1
+busy = False
 
 def loop():
     while not stop.is_set():
@@ -26,7 +27,7 @@ def quit_app():
 
 
 def coordinator_gui():
-    global gui, vm, frame, r_frame
+    global gui, vm, frame, r_frame, busy
 
     if vm.get_frame_length() > 0:
         frame.append(vm.get_frame())
@@ -40,6 +41,13 @@ def coordinator_gui():
     if len(r_frame) > 0:
         gui.set_image(r_frame[0], True)
         r_frame=[]
+
+    if not busy and vm.busy:
+        busy = True
+        gui.config(cursor="watch")
+    elif busy and not vm.busy:
+        busy = False
+        gui.config(cursor="")
 
     gui.after(10, coordinator_gui)
 

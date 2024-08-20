@@ -30,6 +30,7 @@ lock=threading.Lock()
 class VideoManager():
     def __init__(self, models ):
         self.virtcam = False
+        self.busy = False
         self.models = models
         # Model related
         self.swapper_model = []             # insightface swapper model
@@ -272,6 +273,7 @@ class VideoManager():
         return len(self.r_frame_q)
 
     def get_requested_video_frame(self, frame, marker=True):
+        self.busy = True
         temp = []
         if self.is_video_loaded:
 
@@ -313,6 +315,7 @@ class VideoManager():
                 temp[0] = self.enhance_video(temp[0], self.current_frame, False) # image = RGB
 
             self.r_frame_q.append(temp)
+        self.busy = False
 
     def find_lowest_frame(self, queues):
         min_frame=999999999
