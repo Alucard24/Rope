@@ -2325,7 +2325,7 @@ class GUI(tk.Tk):
             else:
                 # Its an image
                 if file_type == 'image':
-                    img = cv2.imread(file)
+                    img = cv2.imdecode(np.fromfile(file, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
 
                     if img is not None:
                         img = torch.from_numpy(img.astype('uint8')).to('cuda')
@@ -2626,7 +2626,7 @@ class GUI(tk.Tk):
                 # Its an image
                 if file_type == 'image':
                     try:
-                        image = cv2.imread(file)
+                        image = cv2.imdecode(np.fromfile(file, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
                         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                     except:
                         print('Trouble reading file:', file)
