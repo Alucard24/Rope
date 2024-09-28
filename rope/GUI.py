@@ -936,7 +936,8 @@ class GUI(tk.Tk):
         # Right Side
         right_playframe = tk.Frame(self.layer['preview_frame'], style.canvas_frame_label_2, height=30, width=120)
         right_playframe.grid(row=0, column=2, sticky='NEWS', pady=0)
-        self.widget['AddMarkerButton'] = GE.Button(right_playframe, 'AddMarkerButton', 2, self.update_marker, 'add', 'control', x=0, y=5, width=20)
+        self.widget['AddMarkerButton'] = GE.Button(right_playframe, 'AddMarkerButton', 2, None, None, 'control', x=0, y=5, width=20)
+        self.widget['AddMarkerButton'].button.bind("<ButtonRelease-1>", lambda event: self.handle_add_marker_click(event))
         self.widget['DelMarkerButton'] = GE.Button(right_playframe, 'DelMarkerButton', 2, self.update_marker, 'delete', 'control', x=25, y=5, width=20)
         self.widget['PrevMarkerButton'] = GE.Button(right_playframe, 'PrevMarkerButton', 2, self.update_marker, 'prev', 'control', x=50, y=5, width=20)
         self.widget['NextMarkerButton'] = GE.Button(right_playframe, 'NextMarkerButton', 2, self.update_marker, 'next', 'control', x=75, y=5, width=20)
@@ -2946,32 +2947,76 @@ class GUI(tk.Tk):
             self.layer['preview_frame'].grid(row=4, column=0, sticky='NEWS')
             self.layer['markers_canvas'].grid(row=3, column=0, sticky='NEWS')
 
-    def update_marker(self, action):
+    def get_changed_parameters(self, base_marker):
+        changed_params = {}
+        
+        # Find the marker at the current frame
+        for param, value in self.parameters.items():
+            if value != base_marker['parameters'].get(param):
+                changed_params[param] = value
+        
+        return changed_params
 
-        if action=='add':
-             # Delete existing marker at current frame and replace with new data
+    def confirm_marker_updateall(self, marker):
+        if marker == None:
+            messagebox.showinfo("Select a marker", "No marker currently selected on the timeline, please position the timeline cursor on a marker to attempt to update all markers.")
+            return False
+        changed_params = self.get_changed_parameters(marker)
+        if not changed_params:
+            messagebox.showinfo("No Changes", "No parameters have been changed for the current marker, change at least one parameter to attempt to update all the markers.")
+            return False
+
+        affected_markers = len(self.markers)
+        message = f"The following parameters will be updated for {affected_markers} markers:\n\n"
+        for param, value in changed_params.items():
+            message += f"{param}: {value}\n"
+        message += "\nDo you want to proceed?"
+
+        result = messagebox.askyesno("Confirm Update All", message)
+        return result
+
+    def handle_add_marker_click(self, event):
+        current_frame = self.video_slider.get()
+        current_marker = next((m for m in self.markers if m['frame'] == current_frame), None)
+        if event.state & 0x1 != 0:  # Shift is pressed
+            if self.confirm_marker_updateall(current_marker):
+                self.update_marker("updateall")
+        else:
+            self.update_marker("add")
+
+    def update_marker(self, action):
+        current_frame = self.video_slider.get()
+        current_marker = next((m for m in self.markers if m['frame'] == current_frame), None)
+        if action == 'add':
+            # Delete existing marker at current frame and replace with new data
             for i in range(len(self.markers)):
-                if self.markers[i]['frame'] == self.video_slider.get():
+                if self.markers[i]['frame'] == current_frame:
                     self.layer['markers_canvas'].delete(self.markers[i]['icon_ref'])
                     self.markers.pop(i)
                     break
 
             width = self.layer['markers_canvas'].winfo_width()-20-40-20
-            position = 20+int(width*self.video_slider.get()/self.video_slider.get_length())
+            position = 20+int(width*current_frame/self.video_slider.get_length())
 
             temp_param = copy.deepcopy(self.parameters)
             temp = {
-                    'frame':        self.video_slider.get(),
-                    'parameters':   temp_param,
-                    'icon_ref':     self.layer['markers_canvas'].create_line(position,0, position, 15, fill='light goldenrod'),
-                    }
+                'frame': current_frame,
+                'parameters': temp_param,
+                'icon_ref': self.layer['markers_canvas'].create_line(position, 0, position, 15, fill='light goldenrod'),
+            }
 
             self.markers.append(temp)
-            def sort(e):
-                return e['frame']
-
-            self.markers.sort(key=sort)
+            self.markers.sort(key=lambda e: e['frame'])
             self.add_action("markers", self.markers)
+
+        elif action == 'updateall':
+            # Update all existing markers with changed parameter values from the current frame marker parameters
+            if current_marker != None:
+                changed_params = self.get_changed_parameters(current_marker)
+                for marker in self.markers:
+                    for param, value in changed_params.items():
+                        marker['parameters'][param] = value
+                self.add_action("markers", self.markers)
 
         # elif action=='stop':
         #     if self.stop_marker == self.video_slider.get():
@@ -2987,47 +3032,38 @@ class GUI(tk.Tk):
         #         position = 15 + int(width * self.video_slider.self.timeline_position / self.video_slider.configure('to')[4])
         #         self.stop_image = self.video_slider_canvas.create_image(position, 30, image=self.stop_marker_icon)
 
-        elif action=='delete':
+        elif action == 'delete':
             for i in range(len(self.markers)):
                 if self.markers[i]['frame'] == self.video_slider.get():
                     self.layer['markers_canvas'].delete(self.markers[i]['icon_ref'])
                     self.markers.pop(i)
                     break
 
-        elif action=='prev':
-
-            temp=[]
-            for i in range(len(self.markers)):
-                temp.append(self.markers[i]['frame'])
+        elif action == 'prev':
+            temp = [marker['frame'] for marker in self.markers]
             idx = bisect.bisect_left(temp, self.video_slider.get())
 
             if idx > 0:
                 self.video_slider.set(self.markers[idx-1]['frame'])
-
                 self.add_action('get_requested_video_frame', self.markers[idx-1]['frame'])
                 self.parameter_update_from_marker(self.markers[idx-1]['frame'])
 
-        elif action=='next':
-            temp=[]
-            for i in range(len(self.markers)):
-                temp.append(self.markers[i]['frame'])
+        elif action == 'next':
+            temp = [marker['frame'] for marker in self.markers]
             idx = bisect.bisect(temp, self.video_slider.get())
 
             if idx < len(self.markers):
                 self.video_slider.set(self.markers[idx]['frame'])
-
                 self.add_action('get_requested_video_frame', self.markers[idx]['frame'])
                 self.parameter_update_from_marker(self.markers[idx]['frame'])
 
-        # resize canvas
-        else :
-
+        else:  # resize canvas
             self.layer['markers_canvas'].delete('all')
-            width = self.layer['markers_canvas'].winfo_width()-20-40-20
+            width = self.layer['markers_canvas'].winfo_width() - 20 - 40 - 20
 
             for marker in self.markers:
-                position = 20+int(width*marker['frame']/self.video_slider.get_length())
-                marker['icon_ref'] = self.layer['markers_canvas'].create_line(position,0, position, 15, fill='light goldenrod')
+                position = 20 + int(width * marker['frame'] / self.video_slider.get_length())
+                marker['icon_ref'] = self.layer['markers_canvas'].create_line(position, 0, position, 15, fill='light goldenrod')
 
     #region [#111111b4]
 
