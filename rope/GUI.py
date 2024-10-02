@@ -204,6 +204,13 @@ class GUI(tk.Tk):
         self.bind('<Key>', self.handle_key_press)
         self.bind("<Return>", lambda event: self.focus_set())
 
+
+    @staticmethod
+    def bind_scroll_events(widget, callback):
+        widget.bind("<MouseWheel>",lambda event: callback(event, delta=-int(event.delta / 120))) # Windows
+        widget.bind("<Button-4>", lambda event: callback(event, delta=-1)) # Unix
+        widget.bind("<Button-5>", lambda event: callback(event, delta=1)) # Unix
+
     def handle_key_press(self, event):
         if isinstance(self.focus_get(), tk.Entry):
             return
@@ -798,8 +805,8 @@ class GUI(tk.Tk):
         # Input Videos Canvas
         self.target_media_canvas = tk.Canvas(self.layer['InputVideoFrame'], style.canvas_frame_label_3, height=100, width=195)
         self.target_media_canvas.grid(row=1, column=0, sticky='NEWS', padx=10, pady=10)
-        self.target_media_canvas.bind("<MouseWheel>", self.target_videos_mouse_wheel)
         self.target_media_canvas.create_text(8, 20, anchor='w', fill='grey25', font=("Arial italic", 20), text=" Input Videos")
+        self.bind_scroll_events(self.target_media_canvas, self.target_videos_mouse_wheel)
 
         # Scroll Canvas
         scroll_canvas = tk.Canvas(self.layer['InputVideoFrame'], style.canvas_frame_label_3, bd=0, )
@@ -821,7 +828,9 @@ class GUI(tk.Tk):
         # Scroll Canvas
         self.source_faces_canvas = tk.Canvas(self.layer['InputVideoFrame'], style.canvas_frame_label_3, height = 100, width=195)
         self.source_faces_canvas.grid(row=1, column=2, sticky='NEWS', padx=10, pady=10)
-        self.source_faces_canvas.bind("<MouseWheel>", self.source_faces_mouse_wheel)
+
+        self.bind_scroll_events(self.source_faces_canvas, self.source_faces_mouse_wheel)
+
         self.source_faces_canvas.create_text(8, 20, anchor='w', fill='grey25', font=("Arial italic", 20), text=" Input Faces")
 
         scroll_canvas = tk.Canvas(self.layer['InputVideoFrame'], style.canvas_frame_label_3, bd=0, )
@@ -881,7 +890,7 @@ class GUI(tk.Tk):
       # Preview Window
         self.video = tk.Label(self.layer['preview_column'], bg='black')
         self.video.grid(row=1, column=0, sticky='NEWS', padx=0, pady=0)
-        self.video.bind("<MouseWheel>", self.iterate_through_merged_embeddings)
+        self.bind_scroll_events(self.video, self.iterate_through_merged_embeddings)
         self.video.bind("<ButtonRelease-1>", lambda event: self.toggle_play_video())
 
     # Videos
@@ -977,7 +986,7 @@ class GUI(tk.Tk):
         # Scroll Canvas
         self.found_faces_canvas = tk.Canvas(ff_frame, style.canvas_frame_label_3, height = 100 )
         self.found_faces_canvas.grid( row = 0, column = 1, sticky='NEWS')
-        self.found_faces_canvas.bind("<MouseWheel>", self.target_faces_mouse_wheel)
+        self.bind_scroll_events(self.found_faces_canvas, self.target_faces_mouse_wheel)
         self.found_faces_canvas.create_text(8, 45, anchor='w', fill='grey25', font=("Arial italic", 20), text=" Found Faces")
 
         self.static_widget['23'] = GE.Separator_y(ff_frame, 111, 0)
@@ -1006,7 +1015,7 @@ class GUI(tk.Tk):
         self.merged_faces_canvas = tk.Canvas(mf_frame, style.canvas_frame_label_3, height = 100)
         self.merged_faces_canvas.grid( row = 0, column = 1, sticky='NEWS')
         self.merged_faces_canvas.grid_rowconfigure(0, weight=1)
-        self.merged_faces_canvas.bind("<MouseWheel>", lambda event: self.merged_faces_canvas.xview_scroll(-int(event.delta/120.0), "units"))
+        self.bind_scroll_events(self.merged_faces_canvas, lambda event, delta: self.merged_faces_canvas.xview_scroll(delta, "units"))
         self.merged_faces_canvas.create_text(8, 45, anchor='w', fill='grey25', font=("Arial italic", 20), text=" Merged Faces")
         self.static_widget['24'] = GE.Separator_y(mf_frame, 111, 0)
 
@@ -1042,10 +1051,11 @@ class GUI(tk.Tk):
         self.widget['DefaultParamsButton'] = GE.Button(frame, 'DefaultParamsButton', 2, self.parameter_io, 'default', 'control', x=0 , y=8, width=100)
 
         self.layer['parameters_canvas'] = tk.Canvas(self.layer['parameter_frame'], style.canvas_frame_label_3, bd=0, width=width)
-        self.layer['parameters_canvas'].grid(row=1, column=0, sticky='NEWS', pady=0, padx=0)
+        self.parameters_canvas = self.layer['parameters_canvas']
+        self.parameters_canvas.grid(row=1, column=0, sticky='NEWS', pady=0, padx=0)
 
         # Face Editor
-        tabview_main = ctk.CTkTabview(self.layer['parameters_canvas'], width=398, height=2050, corner_radius=6, border_width=1,
+        tabview_main = ctk.CTkTabview(self.parameters_canvas, width=398, height=2050, corner_radius=6, border_width=1,
                                       fg_color=style.main, border_color=style.main3,
                                       segmented_button_selected_hover_color='#b1b1b2',
                                       segmented_button_unselected_hover_color=style.main,
@@ -1057,7 +1067,7 @@ class GUI(tk.Tk):
         tabview_main.pack(fill='both', expand=True)  # Utilizza pack per gestire il layout all'interno del Canvas
 
         # Inserisci il CTkTabview nel Canvas usando create_window
-        self.layer['parameters_canvas'].create_window(0, 0, window=tabview_main, anchor='nw')
+        self.parameters_canvas.create_window(0, 0, window=tabview_main, anchor='nw')
 
         # Aggiungi Tabs al CTkTabview
         tab_face_swapper = tabview_main.add("Face Swapper  ")
@@ -1070,11 +1080,14 @@ class GUI(tk.Tk):
         self.layer['parameters_face_editor_frame'].grid(row=0, column=0, sticky='NEWS', pady=0, padx=0)
 
         self.layer['parameter_scroll_canvas'] = tk.Canvas(self.layer['parameter_frame'], style.canvas_frame_label_3, bd=0, )
-        self.layer['parameter_scroll_canvas'].grid(row=1, column=1, sticky='NEWS', pady=0)
-        self.layer['parameter_scroll_canvas'].grid_rowconfigure(0, weight=1)
-        self.layer['parameter_scroll_canvas'].grid_columnconfigure(0, weight=1)
+        parameter_scroll_canvas = self.layer['parameter_scroll_canvas']
+        parameter_scroll_canvas.grid(row=1, column=1, sticky='NEWS', pady=0)
+        parameter_scroll_canvas.grid_rowconfigure(0, weight=1)
+        parameter_scroll_canvas.grid_columnconfigure(0, weight=1)
 
-        self.static_widget['parameters_scrollbar'] = GE.Scrollbar_y(self.layer['parameter_scroll_canvas'], self.layer['parameters_canvas'])
+        self.static_widget['parameters_scrollbar'] = GE.Scrollbar_y(parameter_scroll_canvas, self.parameters_canvas)
+
+        self.bind_scroll_events(parameter_scroll_canvas, self.parameters_mouse_wheel)
 
         self.static_widget['30'] = GE.Separator_x(parameters_control_frame, 0, 41)
 
@@ -1669,27 +1682,32 @@ class GUI(tk.Tk):
     def callback(self, url):
         webbrowser.open_new_tab(url)
 
-    def target_faces_mouse_wheel(self, event):
-        self.found_faces_canvas.xview_scroll(1*int(event.delta/120.0), "units")
+    def target_faces_mouse_wheel(self, event, delta = 0):
+        self.found_faces_canvas.xview_scroll(delta, "units")
 
-    def source_faces_mouse_wheel(self, event):
-        self.source_faces_canvas.yview_scroll(-int(event.delta/120.0), "units")
+    def source_faces_mouse_wheel(self, event, delta=0):
+        self.source_faces_canvas.yview_scroll(delta, "units")
 
         # Center of visible canvas as a percentage of the entire canvas
         center = (self.source_faces_canvas.yview()[1]-self.source_faces_canvas.yview()[0])/2
         center = center+self.source_faces_canvas.yview()[0]
         self.static_widget['input_faces_scrollbar'].set(center)
 
-    def target_videos_mouse_wheel(self, event):
-        self.target_media_canvas.yview_scroll(-int(event.delta/120.0), "units")
+    def target_videos_mouse_wheel(self, event, delta = 0):
+        self.target_media_canvas.yview_scroll(delta, "units")
 
         # Center of visible canvas as a percentage of the entire canvas
         center = (self.target_media_canvas.yview()[1]-self.target_media_canvas.yview()[0])/2
         center = center+self.target_media_canvas.yview()[0]
         self.static_widget['input_videos_scrollbar'].set(center)
 
-    def parameters_mouse_wheel(self, event):
-        self.canvas.yview_scroll(1*int(event.delta/120.0), "units")
+    def parameters_mouse_wheel(self, event, delta = 0):
+        self.parameters_canvas.yview_scroll(delta, "units")
+
+        # Center of visible canvas as a percentage of the entire canvas
+        center = (self.parameters_canvas.yview()[1]-self.parameters_canvas.yview()[0])/2
+        center = center+self.parameters_canvas.yview()[0]
+        self.static_widget['parameters_scrollbar'].set(center)
 
     # focus_get()
     # def preview_control(self, event):
@@ -2022,7 +2040,7 @@ class GUI(tk.Tk):
             new_source_face["TKButton"] = tk.Button(self.merged_faces_canvas, style.media_button_off_3, image=self.blank, text=button_text, height=14, width=text_width, compound='left', anchor='w')
 
             new_source_face["TKButton"].bind("<ButtonRelease-1>", lambda event, arg=j: self.select_input_faces(event, arg))
-            new_source_face["TKButton"].bind("<MouseWheel>", lambda event: self.merged_faces_canvas.xview_scroll(-int(event.delta/120.0), "units"))
+            self.bind_scroll_events(new_source_face["TKButton"], lambda event, delta: self.merged_faces_canvas.xview_scroll(delta, "units"))
             new_source_face['TextWidth'] = text_width
             x_width = 20
             if len(self.source_faces)>0:
@@ -2071,7 +2089,7 @@ class GUI(tk.Tk):
                 new_source_face["TKButton"] = tk.Button(self.merged_faces_canvas, style.media_button_off_3, image=self.blank, text=temp0[j][0], height=14, width=text_width, compound='left', anchor='w')
 
                 new_source_face["TKButton"].bind("<ButtonRelease-1>", lambda event, arg=j: self.select_input_faces(event, arg))
-                new_source_face["TKButton"].bind("<MouseWheel>", lambda event: self.merged_faces_canvas.xview_scroll(-int(event.delta/120.0), "units"))
+                self.bind_scroll_events(new_source_face["TKButton"], lambda event, delta: self.merged_faces_canvas.xview_scroll(delta, "units"))
                 new_source_face['TextWidth'] = text_width
                 x_width = 20
                 if len(self.source_faces)>0:
@@ -2150,7 +2168,7 @@ class GUI(tk.Tk):
                             self.source_faces[-1]["file"] = file
 
                             self.source_faces[-1]["TKButton"].bind("<ButtonRelease-1>", lambda event, arg=len(self.source_faces)-1: self.select_input_faces(event, arg))
-                            self.source_faces[-1]["TKButton"].bind("<MouseWheel>", self.source_faces_mouse_wheel)
+                            self.bind_scroll_events(self.source_faces[-1]["TKButton"], self.source_faces_mouse_wheel)
 
                             self.source_faces_canvas.create_window((i % 2) * 100, (i // 2) * 100, window=self.source_faces[-1]["TKButton"], anchor='nw')
 
@@ -2209,7 +2227,7 @@ class GUI(tk.Tk):
                         last_index = len(self.target_faces)-1
 
                         self.target_faces[last_index]["TKButton"] = tk.Button(self.found_faces_canvas, style.media_button_off_3, height = 86, width = 86)
-                        self.target_faces[last_index]["TKButton"].bind("<MouseWheel>", self.target_faces_mouse_wheel)
+                        self.bind_scroll_events(self.target_faces[last_index]["TKButton"], self.target_faces_mouse_wheel)
                         self.target_faces[last_index]["ButtonState"] = False
                         self.target_faces[last_index]["Image"] = ImageTk.PhotoImage(image=Image.fromarray(crop))
                         self.target_faces[last_index]["Embedding"] = face[1]
@@ -2454,7 +2472,7 @@ class GUI(tk.Tk):
                 rgb_video = Image.fromarray(images[i][0])
                 self.target_media.append(ImageTk.PhotoImage(image=rgb_video))
                 self.target_media_buttons[i].config( image = self.target_media[i],  command=lambda i=i: self.load_target(i, images[i][1], self.widget['PreviewModeTextSel'].get()))
-                self.target_media_buttons[i].bind("<MouseWheel>", self.target_videos_mouse_wheel)
+                self.bind_scroll_events(self.target_media_buttons[i], self.target_videos_mouse_wheel)
                 self.target_media_canvas.create_window(0, i*dely, window = self.target_media_buttons[i], anchor='nw')
 
             #self.target_media_canvas.configure(scrollregion = self.target_media_canvas.bbox("all"))
@@ -2470,7 +2488,7 @@ class GUI(tk.Tk):
                 if len(filename)>32:
                     filename = filename[:29]+'...'
 
-                self.target_media_buttons[i].bind("<MouseWheel>", self.target_videos_mouse_wheel)
+                self.bind_scroll_events(self.target_media_buttons[i], self.target_videos_mouse_wheel)
                 self.target_media_buttons[i].config(image = self.target_media[i], text=filename, compound='top', anchor='n',command=lambda i=i: self.load_target(i, videos[i][1], self.widget['PreviewModeTextSel'].get()))
                 self.target_media_canvas.create_window(0, i*dely, window = self.target_media_buttons[i], anchor='nw')
 
@@ -2872,13 +2890,13 @@ class GUI(tk.Tk):
 
         self.load_input_faces()
 
-    def iterate_through_merged_embeddings(self, event):
-        if event.delta>0:
+    def iterate_through_merged_embeddings(self, event, delta):
+        if delta>0:
             for i in range(len(self.source_faces)):
                 if self.source_faces[i]["ButtonState"] and i<len(self.source_faces)-1:
                     self.select_input_faces('none', i+1)
                     break
-        elif event.delta<0:
+        elif delta<0:
             for i in range(len(self.source_faces)):
                 if self.source_faces[i]["ButtonState"]and i>0:
                     self.select_input_faces('none', i-1)
