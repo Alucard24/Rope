@@ -1770,6 +1770,7 @@ class GUI(tk.Tk):
             if event == ' ':
                 self.toggle_play_video()
             elif event == 'w':
+                self.add_action("play_video", "stop")
                 frame += 1
                 if frame > video_length:
                     frame = video_length
@@ -1777,6 +1778,7 @@ class GUI(tk.Tk):
                 self.add_action("get_requested_video_frame", frame)
                 # self.parameter_update_from_marker(frame)
             elif event == 's':
+                self.add_action("play_video", "stop")
                 frame -= 1
                 if frame < 0:
                     frame = 0
@@ -1784,6 +1786,7 @@ class GUI(tk.Tk):
                 self.add_action("get_requested_video_frame", frame)
                 # self.parameter_update_from_marker(frame)
             elif event == 'd':
+                self.add_action("play_video", "stop")
                 frame += 30
                 if frame > video_length:
                     frame = video_length
@@ -1791,6 +1794,7 @@ class GUI(tk.Tk):
                 self.add_action("get_requested_video_frame", frame)
                 # self.parameter_update_from_marker(frame)
             elif event == 'a':
+                self.add_action("play_video", "stop")
                 frame -= 30
                 if frame < 0:
                     frame = 0
@@ -1798,6 +1802,7 @@ class GUI(tk.Tk):
                 self.add_action("get_requested_video_frame", frame)
                 # self.parameter_update_from_marker(frame)
             elif event == 'q':
+                self.add_action("play_video", "stop")
                 frame = 0
                 self.video_slider.set(frame)
                 self.add_action("get_requested_video_frame", frame)
