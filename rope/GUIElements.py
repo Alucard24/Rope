@@ -509,6 +509,8 @@ class Timeline():
         self.slider.bind('<ButtonPress-1>', lambda e: self.update_timeline_handle(e, True))
         self.slider.bind('<ButtonRelease-1>', lambda e: self.update_timeline_handle(e, True))
         self.slider.bind('<MouseWheel>', lambda e: self.update_timeline_handle(e, True))
+        self.slider.bind('<Button-4>', lambda e: self.update_timeline_handle(e, True))
+        self.slider.bind('<Button-5>', lambda e: self.update_timeline_handle(e, True))
 
         # Add the Entry to the frame
         self.entry_width = 40
@@ -565,18 +567,27 @@ class Timeline():
             position = event
             requested = False
         else:
-            if event.type == '38': # mousewheel
+            if event.type == '38': # windows mousewheel
+                self.add_action("play_video", "stop")
                 position = self.last_position+int(event.delta/120.0)
 
-            elif event.type == '4': # l-button press
-                x_coord = float(event.x)
-                position = self.coord2pos(x_coord)
+            elif event.type == '4': # l-button press or Unix mousewheel
 
-                # Turn off swapping, enhancer, face editor
-                self.temp_toggle_swapper('off')
-                self.temp_toggle_enhancer('off')
-                self.temp_toggle_faces_editor('off')
-                self.add_action("play_video", "stop")
+                if event.num == 4:  # Mouse wheel up (Unix)
+                    self.add_action("play_video", "stop")
+                    position = self.last_position + self.fps
+                elif event.num == 5:  # Mouse wheel down (Unix)
+                    self.add_action("play_video", "stop")
+                    position = self.last_position - self.fps
+                else:
+                    x_coord = float(event.x)
+                    position = self.coord2pos(x_coord)
+
+                    # Turn off swapping, enhancer, face editor
+                    self.temp_toggle_swapper('off')
+                    self.temp_toggle_enhancer('off')
+                    self.temp_toggle_faces_editor('off')
+                    self.add_action("play_video", "stop")
 
             elif event.type == '5': # l-button release
                 x_coord = float(event.x)
