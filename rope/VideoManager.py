@@ -108,7 +108,7 @@ class VideoManager():
                             "FrameNumber":              [],
                             "ProcessedFrame":           [],
                             "Status":                   'clear',
-                            "ThreadTime":               []
+                            "ThreadTime":               0.0
                             }
         self.process_qs = []
         self.rec_q =    {
@@ -537,7 +537,7 @@ class VideoManager():
                     self.process_qs[index]['Status'] = 'clear'
                     self.process_qs[index]['Thread'] = []
                     self.process_qs[index]['FrameNumber'] = []
-                    self.process_qs[index]['ThreadTime'] = []
+                    self.process_qs[index]['ThreadTime'] = 0.0
                     self.frame_timer += 1.0/self.fps
 
         if not self.webcam_selected(self.video_file):
