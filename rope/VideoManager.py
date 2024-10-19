@@ -1884,7 +1884,7 @@ class VideoManager():
 
     def soft_oval_mask(self, height, width, center, radius_x, radius_y, feather_radius=None):
         """
-        Create a soft oval mask with feathering effect using integer operations.
+        Create a soft oval mask with a feathering effect using integer operations.
 
         Args:
             height (int): Height of the mask.
@@ -1897,16 +1897,26 @@ class VideoManager():
         Returns:
             torch.Tensor: Soft oval mask tensor of shape (H, W).
         """
+
+        # Clamp input values to ensure they are valid
+
+        height = max(1, height)  # Ensure height is at least 1
+        width = max(1, width)    # Ensure width is at least 1
+        center_x = max(0, min(center[0], width - 1))
+        center_y = max(0, min(center[1], height - 1))
+
+        # Set feather_radius if not provided
         if feather_radius is None:
             feather_radius = max(radius_x, radius_y) // 2  # Integer division
+        feather_radius = max(1, feather_radius)  # Ensure feather_radius is at least 1
 
-        # Calculating the normalized distance from the center
+        # Create meshgrid
         y, x = torch.meshgrid(torch.arange(height), torch.arange(width), indexing='ij')
 
-        # Calculating the normalized distance from the center
-        normalized_distance = torch.sqrt(((x - center[0]) / radius_x) ** 2 + ((y - center[1]) / radius_y) ** 2)
+        # Calculate normalized distance from the center
+        normalized_distance = torch.sqrt(((x - center_x) / radius_x) ** 2 + ((y - center_y) / radius_y) ** 2)
 
-        # Creating the oval mask with a feathering effect
+        # Create the oval mask with a feathering effect
         mask = torch.clamp((1 - normalized_distance) * (radius_x / feather_radius), 0, 1)
 
         return mask
