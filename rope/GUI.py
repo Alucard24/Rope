@@ -2092,7 +2092,7 @@ class GUI(tk.Tk):
 
         # Next Load images
         directory = self.json_dict["source faces"]
-        filenames = [os.path.join(dirpath,f) for (dirpath, dirnames, filenames) in os.walk(directory) for f in filenames]
+        filenames = [os.path.join(dirpath,f) for (dirpath, dirnames, filenames) in os.walk(directory, followlinks=True) for f in filenames]
 
         # torch.cuda.memory._record_memory_history(True, trace_alloc_max_entries=100000, trace_alloc_record_context=True)
         i=0
@@ -2387,7 +2387,7 @@ class GUI(tk.Tk):
 
         # Recursively read all media files from directory
         directory =  self.json_dict["source videos"]
-        filenames = [os.path.join(dirpath,f) for (dirpath, dirnames, filenames) in os.walk(directory) for f in filenames]
+        filenames = [os.path.join(dirpath,f) for (dirpath, dirnames, filenames) in os.walk(directory, followlinks=True) for f in filenames]
 
         images = []
         self.target_media = []
