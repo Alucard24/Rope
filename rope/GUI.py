@@ -24,6 +24,7 @@ import rope.Styles as style
 from skimage import transform as trans
 from torchvision.transforms import v2
 from tkinter import messagebox
+from multiprocessing import Pool, Manager
 
 from os import listdir
 from os.path import isfile, join
@@ -34,6 +35,31 @@ from rope.Dicts import CAMERA_BACKENDS
 from rope.FaceLandmarks import FaceLandmarks
 from rope.FaceEditor import FaceEditor
 import gc
+
+def process_video(file):
+    try:
+        video = cv2.VideoCapture(file)
+        if video.isOpened():
+            video.set(cv2.CAP_PROP_POS_FRAMES, int(video.get(cv2.CAP_PROP_FRAME_COUNT) / 2))
+            success, video_frame = video.read()
+
+            if success:
+                video_frame = cv2.cvtColor(video_frame, cv2.COLOR_BGR2RGB)
+                ratio = float(video_frame.shape[0]) / video_frame.shape[1]
+                new_height = 100
+                new_width = int(new_height / ratio)
+                video_frame = cv2.resize(video_frame, (new_width, new_height))
+                return [video_frame, file]
+            else:
+                print('Trouble reading file:', file)
+        else:
+            print('Trouble opening file:', file)
+    except Exception as e:
+        print('Error processing file:', file, e)
+    finally:
+        video.release()
+
+    return None
 
 class GUI(tk.Tk):
     def __init__(self, models):
@@ -2390,6 +2416,7 @@ class GUI(tk.Tk):
         filenames = [os.path.join(dirpath,f) for (dirpath, dirnames, filenames) in os.walk(directory) for f in filenames]
 
         images = []
+        video_files = []
         self.target_media = []
         self.target_media_buttons = []
         self.target_media_canvas.delete("all")
@@ -2419,33 +2446,15 @@ class GUI(tk.Tk):
 
                 # Its a video
                 elif file_type == 'video':
-                    try:
-                        video = cv2.VideoCapture(file)
-                    except:
-                        print('Trouble reading file:', file)
-                    else:
-                        if video.isOpened():
+                    video_files.append(file)
 
-                            # Grab a frame from the middle for a thumbnail
-                            video.set(cv2.CAP_PROP_POS_FRAMES, int(video.get(cv2.CAP_PROP_FRAME_COUNT)/2))
-                            success, video_frame = video.read()
+        with Pool() as pool:
+            results = pool.map(process_video, video_files)
 
-                            if success:
-                                video_frame = cv2.cvtColor(video_frame, cv2.COLOR_BGR2RGB)
-                                ratio = float(video_frame.shape[0]) / video_frame.shape[1]
+        for result in results:
+            if result is not None:
+                videos.append(result)
 
-                                new_height = 100
-                                new_width = int(new_height / ratio)
-                                video_frame = cv2.resize(video_frame, (new_width, new_height))
-                                video_frame[:new_height, :new_width, :] = video_frame
-
-                                videos.append([video_frame, file])
-                                video.release()
-
-                            else:
-                                print('Trouble reading file:', file)
-                        else:
-                            print('Trouble opening file:', file)
         delx, dely = 100, 120
         if self.widget['PreviewModeTextSel'].get()== 'Image':#images
             for i in range(len(images)):
