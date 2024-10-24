@@ -249,6 +249,9 @@ DEFAULT_DATA = {
 'VirtualCameraSwitchState':         False,
 'VirtualCameraSwitchInfoText':      'VIRTUAL CAMERA:\nFeed the swapped video output to virtual camera for using in external applications',
 
+'ResolutionOverrideSwitchState':    False,
+'ResolutionOverrideSwitchInfoText': 'OVERRIDE RESOLUTION:\nPlayback and recording will be downsampled to the specified height while maintaining aspect ratio. May help performance. Does not upsample.',
+
 'RestoreEyesSwitchInfoText':        'RESTORE EYES: \nRestore eyes from the original face',
 'RestoreEyesSwitchState':           False,
 'RestoreMouthSwitchInfoText':       'RESTORE MOUTH: \nRestore mouth from the original face',
@@ -610,6 +613,11 @@ DEFAULT_DATA = {
 'OrientSliderInfoText':             'ORIENTATION ANGLE:\nSet this to the angle of the input face angle to help with laying down/upside down/etc. Angles are read clockwise.',
 'OrientSliderMax':                  270,
 'OrientSliderMin':                  0,
+'HeightOverrideSliderAmount':       480,
+'HeightOverrideSliderInc':          60,
+'HeightOverrideSliderInfoText':     'HEIGHT:\nSpecifies a height at which the video should be downsampled in playback and recording.',
+'HeightOverrideSliderMax':          2160,
+'HeightOverrideSliderMin':          120,
 'RestorerSliderAmount':             100,
 'RestorerSliderInc':                5,
 'RestorerSliderInfoText':           'RESTORER AMOUNT:\nBlends the Restored results back into the original swap.',
@@ -791,6 +799,17 @@ DEFAULT_DATA = {
 'SwapperTypeTextSelMode':          '128',
 'SwapperTypeTextSelModes':         ['128', '256', '512'],
 
+# Frame skip
+'FrameSkipModeTextSelInfoText':    'FRAME SKIP MODE:\nAllow video playback to skip frames. Does not affect recording.\nMANUAL: Set a constant skip rate.\nAUTO: Allow Rope to set the number of frames to skip based on the video playback speed, trying to maintain the original timing.',
+'FrameSkipModeTextSelMode':        'none',
+'FrameSkipModeTextSelModes':       ['none', 'manual', 'auto'],
+
+'FramesToSkipInfoText':     'FRAMES TO SKIP (MANUAL): How many frames to explicitly skip when set to "manual". Has no effect otherwise.',
+'FramesToSkipAmount':       1,
+'FramesToSkipInc':       1,
+'FramesToSkipMin':       1,
+'FramesToSkipMax':       10,
+#
 # Text Entry
 'CLIPTextEntry':    '',
 'CLIPTextEntryInfoText':            'TEXT MASKING ENTRY:\nTo use, type a word(s) in the box separated by commas and press <enter>.',

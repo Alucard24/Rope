@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import font
 from PIL import Image, ImageTk
+import time
 from  rope.Dicts import DEFAULT_DATA
 import rope.Styles as style
 import customtkinter as ctk
@@ -496,6 +497,12 @@ class Timeline():
         self.slider_right = []
 
         self.fps = 0
+        self.last_update_time = time.time()
+        self.fps_history = []
+        self.fps_history_limit = 30
+        self.fps_string = tk.StringVar()
+        self.fps_string.set("Avg FPS: 0.0/0.0")
+
         self.time_elapsed_string = tk.StringVar()
         self.time_elapsed_string.set("00:00:00")
 
@@ -509,11 +516,16 @@ class Timeline():
         self.slider.bind('<ButtonPress-1>', lambda e: self.update_timeline_handle(e, True))
         self.slider.bind('<ButtonRelease-1>', lambda e: self.update_timeline_handle(e, True))
         self.slider.bind('<MouseWheel>', lambda e: self.update_timeline_handle(e, True))
+        self.slider.bind('<Button-4>', lambda e: self.update_timeline_handle(e, True))
+        self.slider.bind('<Button-5>', lambda e: self.update_timeline_handle(e, True))
 
         # Add the Entry to the frame
         self.entry_width = 40
         self.entry = tk.Entry(self.parent, style.entry_3, textvariable=self.entry_string)
         self.entry.bind('<Return>', lambda event: self.entry_input(event))
+
+        # Add the Average FPS entry
+        self.fps_entry = tk.Entry(self.parent, style.entry_3, textvariable=self.fps_string, width=24)
 
         # Add the Time Entry to the frame
         self.time_width = 40
@@ -526,6 +538,7 @@ class Timeline():
         # Configure widths and placements
         self.slider.configure(width=self.frame_length)
         self.entry.place(x=self.parent.winfo_width()-self.counter_width, y=0)
+        self.fps_entry.place(x=8, y=25)
         self.time_entry.place(x=(self.parent.winfo_width()-self.counter_width-self.time_width-40) / 2, y=25)
 
         # Draw the slider
@@ -562,21 +575,44 @@ class Timeline():
         requested = True
 
         if isinstance(event, float):
+
+            # Record fps calculcation to history
+            delta_time = time.time() - self.last_update_time
+            if delta_time > 0.0:
+                self.fps_history.append(1 / delta_time)
+
+                # Maintain sample size
+                if len(self.fps_history) > self.fps_history_limit:
+                    self.fps_history.pop(0)
+
+            # Update last_update_time
+            self.last_update_time = time.time()
+
+            # Update timeline position
             position = event
             requested = False
         else:
-            if event.type == '38': # mousewheel
+            if event.type == '38': # windows mousewheel
+                self.add_action("play_video", "stop")
                 position = self.last_position+int(event.delta/120.0)
 
-            elif event.type == '4': # l-button press
-                x_coord = float(event.x)
-                position = self.coord2pos(x_coord)
+            elif event.type == '4': # l-button press or Unix mousewheel
 
-                # Turn off swapping, enhancer, face editor
-                self.temp_toggle_swapper('off')
-                self.temp_toggle_enhancer('off')
-                self.temp_toggle_faces_editor('off')
-                self.add_action("play_video", "stop")
+                if event.num == 4:  # Mouse wheel up (Unix)
+                    self.add_action("play_video", "stop")
+                    position = self.last_position + self.fps
+                elif event.num == 5:  # Mouse wheel down (Unix)
+                    self.add_action("play_video", "stop")
+                    position = self.last_position - self.fps
+                else:
+                    x_coord = float(event.x)
+                    position = self.coord2pos(x_coord)
+
+                    # Turn off swapping, enhancer, face editor
+                    self.temp_toggle_swapper('off')
+                    self.temp_toggle_enhancer('off')
+                    self.temp_toggle_faces_editor('off')
+                    self.add_action("play_video", "stop")
 
             elif event.type == '5': # l-button release
                 x_coord = float(event.x)
@@ -612,6 +648,10 @@ class Timeline():
             if also_update_entry:
                 self.entry_string.set(str(position))
                 self.update_time_elapsed(position)
+
+                if self.fps_history:  # Check if history is not empty
+                    average_fps = sum(self.fps_history) / len(self.fps_history)
+                    self.fps_string.set(f"Avg FPS: {average_fps:.1f} / {self.fps}")
 
     def entry_input(self, event):
     # event.char
