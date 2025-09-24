@@ -12,8 +12,8 @@ icon_on = None
 
 def load_switch_icons():
     global icon_off, icon_on
-    icon_off_img = Image.open(style.icon['IconOff']).resize((40, 40), Image.ANTIALIAS)
-    icon_on_img = Image.open(style.icon['IconOn']).resize((40, 40), Image.ANTIALIAS)
+    icon_off_img = Image.open(style.icon['IconOff']).resize((40, 40), Image.LANCZOS)
+    icon_on_img = Image.open(style.icon['IconOn']).resize((40, 40), Image.LANCZOS)
     icon_off = ImageTk.PhotoImage(icon_off_img)
     icon_on = ImageTk.PhotoImage(icon_on_img)
 
@@ -717,26 +717,26 @@ class Button():
         # Add Icon
         if self.default_data[self.name+'Display'] == 'both':
             img = Image.open(self.default_data[self.name+'IconOn'])
-            resized_image= img.resize((20,20), Image.ANTIALIAS)
+            resized_image= img.resize((20,20), Image.LANCZOS)
             self.icon_on = ImageTk.PhotoImage(resized_image)
             img = Image.open(self.default_data[self.name+'IconOff'])
-            resized_image= img.resize((20,20), Image.ANTIALIAS)
+            resized_image= img.resize((20,20), Image.LANCZOS)
             self.icon_off = ImageTk.PhotoImage(resized_image)
             img = Image.open(self.default_data[self.name+'IconHover'])
-            resized_image= img.resize((20,20), Image.ANTIALIAS)
+            resized_image= img.resize((20,20), Image.LANCZOS)
             self.icon_hover = ImageTk.PhotoImage(resized_image)
 
             text = ' '+self.default_data[self.name+'Text']
 
         elif self.default_data[self.name+'Display'] == 'icon':
             img = Image.open(self.default_data[self.name+'IconOn'])
-            resized_image= img.resize((20,20), Image.ANTIALIAS)
+            resized_image= img.resize((20,20), Image.LANCZOS)
             self.icon_on = ImageTk.PhotoImage(resized_image)
             img = Image.open(self.default_data[self.name+'IconOff'])
-            resized_image= img.resize((20,20), Image.ANTIALIAS)
+            resized_image= img.resize((20,20), Image.LANCZOS)
             self.icon_off = ImageTk.PhotoImage(resized_image)
             img = Image.open(self.default_data[self.name+'IconHover'])
-            resized_image= img.resize((20,20), Image.ANTIALIAS)
+            resized_image= img.resize((20,20), Image.LANCZOS)
             self.icon_hover = ImageTk.PhotoImage(resized_image)
 
             text = ''
